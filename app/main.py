@@ -54,6 +54,8 @@ def get_description(text, token):
     res = get_seo(str(text))
     return JSONResponse(content=res)
 
+def get_full_info(token:str, brand:str, model:str, part_num:str='', desciption:str='', extract_sources:bool=True):
+
 @app.post("/get_ip")
 def ip():
     return urllib.request.urlopen('https://ident.me').read().decode('utf8')
