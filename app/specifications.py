@@ -126,9 +126,10 @@ def searchlist(trusted_sources,brand = 'APPLE',model = 'MACBOOK PRO "MK183"',par
     return src_list
 
 
-def construct(name, spec, source,i):
+def construct(name, spec, source,i,extract_sources):
     new_dic = {'specification'+str(i): {} }
-    values = [{'name': name}, {'value': spec}, {'source':source}]
+    if extract_sources: values = [{'name': name}, {'value': spec}, {'source':source}]
+    else: values = [{'name': name}, {'value': spec}]
     for val in values:
         new_dic['specification'+str(i)].update(val)
     return new_dic
@@ -138,13 +139,13 @@ def to_json(l):
     a_dict={'specifications': {} }
     i=0
     for xx in l:
-        add_dict = construct(xx[0],xx[1],xx[2],i)
+        add_dict = construct(xx[0],xx[1],xx[2],i,extract_sources)
         a_dict['specifications'].update(add_dict)
         i+=1
     return a_dict
 
 
-def find_spec(trusted_sources,src_count = 10,brand = 'APPLE',model = 'MACBOOK PRO "MK183"',part_num = ''):
+def find_spec(trusted_sources,src_count = 10,brand = 'APPLE',model = 'MACBOOK PRO "MK183"',part_num = '',extract_sources=True):
     src_count = 10
     cn = 0
     parsed_list = ''
@@ -193,8 +194,22 @@ def find_spec(trusted_sources,src_count = 10,brand = 'APPLE',model = 'MACBOOK PR
             if v[0] >= 0.8:
                 ch_mass[j][0]='del'
     ch_mass=[i for i in ch_mass if i[0]!='del']
-    return to_json(ch_mass)
+    return to_json(ch_mass,extract_sources)
 
-def get_spec(brand,model, part_num=''):
+def get_spec(brand,model, part_num='', extract_sources=True):
     trusted_sources = pickle.load(request.urlopen('https://storage.yandexcloud.net/trusted/sourses.pkl'))
-    return find_spec(trusted_sources,brand=brand,model=model,part_num=part_num)
+    return find_spec(trusted_sources,brand=brand,model=model,part_num=part_num,extract_sources=extract_source)
+
+def full_info(brand,model, part_num='', extract_sources=True, product_description=''):
+    trusted_sources = pickle.load(request.urlopen('https://storage.yandexcloud.net/trusted/sourses.pkl'))
+    extracted = find_spec(trusted_sources,brand=brand,model=model,part_num=part_num,extract_sources=extract_source)
+    spec_data = (json.dumps(a_dict,ensure_ascii=False),json.loads(json.dumps(a_dict,ensure_ascii=False)))
+    if product_description == '':
+        for x in spec_data[1]['specifications'].values():
+            product_description+=x['name']+': '+x['value']+'\n'
+    desc = get_seo(product_description)
+    final_data = {'specifications': {}, 'main_description': {}, 'snippet': {}}
+    final_data['specifications'] = spec_data[1]['specifications']
+    final_data['main_description'] = product_description['main_description']
+    final_data['snippet'] = product_description['snippet']
+    return json.dumps(final_data,ensure_ascii=False)
