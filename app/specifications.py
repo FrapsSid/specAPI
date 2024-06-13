@@ -212,4 +212,4 @@ def full_info(brand,model, part_num='', extract_sources=True, product_descriptio
     final_data['specifications'] = spec_data[1]['specifications']
     final_data['main_description'] = product_description['main_description']
     final_data['snippet'] = product_description['snippet']
-    return json.dumps(final_data,ensure_ascii=False)
+    return final_data
