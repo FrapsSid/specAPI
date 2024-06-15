@@ -199,17 +199,3 @@ def find_spec(trusted_sources,src_count = 10,brand = 'APPLE',model = 'MACBOOK PR
 def get_spec(brand,model, part_num='', extract_sources=True):
     trusted_sources = pickle.load(request.urlopen('https://storage.yandexcloud.net/trusted/sourses.pkl'))
     return find_spec(trusted_sources,brand=brand,model=model,part_num=part_num,extract_sources=extract_source)
-
-def full_info(brand,model, part_num='', extract_sources=True, product_description=''):
-    trusted_sources = pickle.load(request.urlopen('https://storage.yandexcloud.net/trusted/sourses.pkl'))
-    extracted = find_spec(trusted_sources,brand=brand,model=model,part_num=part_num,extract_sources=extract_source)
-    spec_data = (json.dumps(a_dict,ensure_ascii=False),json.loads(json.dumps(a_dict,ensure_ascii=False)))
-    if product_description == '':
-        for x in spec_data[1]['specifications'].values():
-            product_description+=x['name']+': '+x['value']+'\n'
-    desc = get_seo(product_description)
-    final_data = {'specifications': {}, 'main_description': {}, 'snippet': {}}
-    final_data['specifications'] = spec_data[1]['specifications']
-    final_data['main_description'] = product_description['main_description']
-    final_data['snippet'] = product_description['snippet']
-    return final_data
